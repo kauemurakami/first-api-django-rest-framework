@@ -30,7 +30,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'cursos'
+    'cursos'  
 ]
 ```
 Altere também `LANGUAGE_CODE` e `TIMEZONE` para : 
@@ -43,6 +43,95 @@ Ao fim do arquivo, abaixo de `STATIC_URL` crie uma novas variaveis chamadas `STA
 ```python
 STATIC_URL = 'static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-MEDIA_URL = '/media'
+MEDIA_URL = 'media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 ```
+
+##### Criando models da aplicação
+Em `escola/cursos` abra o arquivo `models.py` em seguida adiicone nossas classes, sendo `Base` uma classe `abstract`: 
+```python
+from django.db import models
+
+class Base(models.Model):
+  criacao = models.DateTimeField(auto_now_add=True) 
+  atualizacao = models.DateTimeField(auto_now_add=True)
+  ativo = models.BooleanField(default=True)
+
+  class Meta:
+    abstract = True
+
+class Curso(Base):
+  titulo = models.CharField(max_length=255)
+  url = models.URLField(unique=True) #não criar dois cursos com mesma url
+
+  class Meta:
+    verbose_name = 'Curso'
+    verbose_name_plural = 'Cursos'
+  
+  def __str__(self):
+    return self.titulo
+
+class Avaliacao(Base):
+  curso = models.ForeignKey(Curso, related_name='avaliacoes', on_delete= models.CASCADE)
+  nome = models.CharField(max_length= 255)
+  email = models.EmailField()
+  comentario = models.TextField(blank=True, default='')
+  avaliacao = models.DecimalField(max_digits=2, decimal_places=1)
+
+  class Meta:
+    verbose_name = 'Avaliacao'
+    verbose_name_plural = 'Avaliacoes'
+    unique_together = ['email', 'curso']
+
+  def __str__(self):
+    return f'{self.nome} avaliou o curso {self.curso} com nota {self.avaliacao}'
+```
+Agora Vamos registrar esse `model` no `admin`, em `escola/cursos` abra o arquivo `admin.py` e registre nossos models da seguinte forma :
+```python
+from django.contrib import admin
+
+# Register your models here.
+from .models import Curso, Avaliacao
+
+
+@admin.register(Curso)
+class CursoAdmin(admin.ModelAdmin):
+  list_display = ( 'titulo', 'url', 'criacao', 'atualizacao', 'ativo')
+
+@admin.register(Avaliacao)
+class AvaliacaoAdmin(admin.ModelAdmin):
+  list_display = ( 'curso', 'nome', 'email', 'avaliacao', 'criacao', 'atualizacao', 'ativo')
+```  
+Temos nossos `models` criados e registrados no `admin`, agora podemos rodar nossa `migration`.  
+Vamos rodar o seguinte comando a nível de projeto:  
+`.../escola>$: python manage.py makemigrations` após isso, caso de tudo certo, algo como :  
+```sheel
+Migrations for 'cursos':
+  cursos\migrations\0001_initial.py
+    - Create model Curso
+    - Create model Avaliacao
+```
+deve aparecer para você, caso contrário revise seu `admin` e seus `models` e tente novamente.  
+Caso tudo tenha ocorrido bem e recebido um resultado ok no terminal, você pode verirficar em `escola/cursos/migrations` deve ter um titulo como `0001_initial.py`,agora com as `migrations` criadas, vamos agora migrar de fato com:  
+`.../escola>$: python manage.py migrate`  
+Após isso algo como :
+```shell
+Operations to perform:
+  Apply all migrations: admin, auth, contenttypes, cursos, sessions
+Running migrations:
+  Applying contenttypes.0001_initial... OK
+  Applying auth.0001_initial... OK
+  ...
+```
+deve ser exibido no seu terminal.<br/><br/>
+
+##### Criando super user
+Agora vamos aproveitar apara criar nosso super usuário:  
+`.../escola>$: python manage.py createsuperuser` e preencha os campos que serão pedidos ( usuário, email e senha).  
+
+Com isso agora vamos rodar o servidor:  
+`.../escola>$: python manage.py runserver`
+
+
+
+
