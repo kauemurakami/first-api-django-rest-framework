@@ -9,6 +9,8 @@ https://docs.djangoproject.com/en/4.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
+from django.core.management.commands.runserver import Command as rs
+rs.default_port='5000'
 
 import os
 from pathlib import Path

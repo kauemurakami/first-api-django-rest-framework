@@ -130,7 +130,20 @@ Agora vamos aproveitar apara criar nosso super usuário:
 `.../escola>$: python manage.py createsuperuser` e preencha os campos que serão pedidos ( usuário, email e senha).  
 
 Com isso agora vamos rodar o servidor:  
-`.../escola>$: python manage.py runserver`
+`.../escola>$: python manage.py runserver`<br/><br/>
+
+Em caso de erro ao rodar o servidor, basta definir uma porta em `escola/escola/settings.py`: 
+```python
+...
+from django.core.management.commands.runserver import Command as rs
+rs.default_port='5000' 
+
+import os
+from pathlib import Path
+...
+```
+Adicione esta linha `from django.core.management.commands.runserver import Command as rs rs.default_port='5000'` com a porta de sua preferência e rode novamente o comando `.../escola>$: python manage.py runserver`
+
 
 
 
