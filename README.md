@@ -142,9 +142,65 @@ import os
 from pathlib import Path
 ...
 ```
-Adicione esta linha `from django.core.management.commands.runserver import Command as rs rs.default_port='5000'` com a porta de sua preferência e rode novamente o comando `.../escola>$: python manage.py runserver`
+Adicione esta linha `from django.core.management.commands.runserver import Command as rs rs.default_port='5000'` com a porta de sua preferência e rode novamente o comando `.../escola>$: python manage.py runserver`  
 
+##### Criando objetos via admin
+Vá até seu navegador e digite `localhost:5000/admin` caso não tenha definido uma porta, a porta padrão geralmente é `8000`, mas ao rodar `runserver` exibirá a url local da api.  
+Va na seção `cursos` e adicione alguns cursos, eu adicionei 3.  
+Após isso vá para a seção `avaliacao`, avalie cada um dos cursos, pode ser com um mesmo usuário ou diferentes, lembrando que você pode testar, que ele não receba outra avaliação do mesmo email que já avaliou o mesmo curso.  
 
+##### Criando API
+Por enquanto temos apenas o projeto django, sem nenhuma api, vamos então instalar os requisitos para começar.  
+##### Instalação e configuração do django-rest-framework
+Comece instalando o `django rest framework` com o seguinte comando:  
+`.../escola>$:pip install djangorestframework markdown django-filter` 
+O `markdown` é utilizado pelo `django rest framework` para criar páginas de documentação da nossa API.  
+O `django-filter` facilita a utilização de filtros.<br/><br/>
 
+Vamos aproveitar e criar nossos requirements com:  
+`pip freeze > requirements.txt`  
+Caso tudo ocorra bem um arquivo `requirements.txt` será criado na raiz do projeto.<br/><br/>
 
+###### Configurando
+Em `escola/escola/settings.py` Altere esses trechos de código:  
+```python
 
+INSTALLED_APPS = [
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
+
+    'django_filters', <
+    'rest_framework', <
+
+    'cursos'
+]
+```
+Agora ao fim do arquivo vamos adicionar : 
+```python
+#DJANGO REST FRAMEWORK
+REST_FRAMEWORK = {
+  'DEFAULT_AUTHENTICATION_CLASSES': (
+    'rest_framework.authentication.SessionAuthentication',
+  ),
+  'DEFAULT_PERMISSION_CLASSES': (
+    'rest_framework.permissions.IsAuthenticatedOrReadOnly',
+  )
+}
+```
+Agora no mesmo diretório em `urls.py` faça a seguinte alteração:  
+```python
+from django.contrib import admin
+from django.urls import path, include
+
+urlpatterns = [
+    path('admin/', admin.site.urls),
+    path('auth/', include('rest_framework.urls'))
+]
+```
+Estamos adicionando as rotas do django rest framework.  
+
+Agora navegue até a url de login no seu navegador: `http://localhost:5000/api-auth/login/` e verá uma tela criada.
