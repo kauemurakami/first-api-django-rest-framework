@@ -22,6 +22,7 @@ class AvaliacaoSerializer(serializers.ModelSerializer):
       'nome',
       'email',
       'comentario',
+      'avaliacao',
       'criacao',
       'ativo'
     )
