@@ -204,3 +204,108 @@ urlpatterns = [
 Estamos adicionando as rotas do django rest framework.  
 
 Agora navegue até a url de login no seu navegador: `http://localhost:5000/api-auth/login/` e verá uma tela criada.
+
+##### Criando Models Serializers
+Ajuda a codificar nossa classe e seus atributos para json e vice versa.  
+Em `escola/cursos/` crie um arquivo chamado `serializers.py`, deve estat no mesmo nível de `models.py` dentro do seu diretório `cursos/`, tendo feito isso, entre no arquivo e vamos criar os serializers pra nossas classes:  
+```python
+from rest_framework import serializers
+
+from .models import Curso, Avaliacao
+
+
+class AvaliacaoSerializer(serializers.ModelSerializer):
+  
+  class Meta:
+    extra_kwargs = {
+      'email': {'write_only': True} # só no momento escrita
+      #como email e senha por exemplo é um dado sensível, não
+      #vamos exibir, apenas no momento de escrever/criar.
+    }
+    # indica o model do model serializer
+    model = Avaliacao
+    # quais campos quero apresentar/mostrar quando o model é solicitado
+    fields = {
+      'id',
+      'curso',
+      'nome',
+      'email',
+      'comentario',
+      'criacao',
+      'ativo'
+    }
+
+
+class CursoSerializer(serializers.ModelSerializer):
+  
+  class Meta:
+    model = Curso
+    fields = { 
+      'id',
+      'titulo',
+      'url',
+      'criacao',
+      'ativo'
+    }
+``` 
+Com isso vamos poder enviar e receber respostas json baseado nos nossos models serializers.  
+
+##### Testando nossos serializers
+Primeiro vamos abrir o shell do python, digite em seu terminal `...escola>$ python manage.py shell`  
+Você verá seu terminal diferente, algo como  
+```shell
+Python 3.12.5 (tags/v3.12.5:ff3bc82, Aug  6 2024, 20:45:27) [MSC v.1940 64 bit (AMD64)] on win32
+Type "help", "copyright", "credits" or "license" for more information.
+(InteractiveConsole)
+>>>
+```  
+Significa que esta dentro do shell do python.  
+Agora vamos emular uma serialização da nossa classe serializer, neste caso vamos testar apenas a do `Curso`, mas fique a vontade pra fazer o mesmo pra `Avaliacao`, você pode usar `Ctrl + L` para limpar o terminal quadno necessário.  
+Agora vamos começar <br/><br/>
+
+Começando pelos imports faça:  
+```shell
+>>> from rest_framework.renderers import JSONRenderer 
+```
+Esse será responsável por renderizar nosso serializer em json
+Agora vamos importar nosso `model`:
+```shell
+>>>from cursos.models import Curso
+```
+E também o import do serializer
+```shell
+>>>from cursos.serializers import CursoSerializer
+```
+Caso tudo esteja correndo bem, nenhum erro será exibido e uma nova linha em branco `>>>` aparecerá sempre após um comando correto.<br/><br/>
+
+Continuando agora, vamos buscar o último curso que adicionamos via `django admin`: 
+```shell
+>>>curso = Curso.objects.latest('id')
+```
+Agora vamos verificar o que está na variável:
+```shell
+>>>curso
+```
+Isso deve retornar u último curso que você adicionou, o resultado será algo como:  
+```shell
+>>> curso
+<Curso: Programação com JavaScript>
+```  
+Você pode testar também: `>>> curso.titulo`.<br/><br/>
+
+Vamos agora criar nossa variavel serializer:
+```shell
+>>>serializer = CursoSerializer(curso)
+```
+Estamos pegando um objeto python, do `models` e passando esse objeto para o `serializers`.
+Vamos ver agora o que tem nessa nossa variável `serializer`:  
+```shell
+>>> serializer
+```
+Você verá literalmente o nosso model `Curso`
+Agora para converter em json basta usar:  
+```python
+>>> serializer.data
+```
+Agora você terá seu objeto em formato json.  
+
