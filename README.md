@@ -369,7 +369,7 @@ Agora vá até seu navegador e acesse a url `http://localhost:5000/api/v1/cursos
 Veremos em formato de api, e você também pode ver em formato json com o dropdown do botão GET.  
 
 ##### Implementando funções post a nossas APIViews
-No mesmo arquivo `curso/views.py` vamos adicionar nossos endpoint `POST`, para inserir dados, comece adicionando o import de `status` do próprio `drf` para que possamos adicioonar status http em nossas responses.  
+No mesmo arquivo `curso/views.py` vamos adicionar nossos endpoint `POST`, para inserir dados, comece adicionando o import de `status` do próprio `drf`(django rest framework) para que possamos adicioonar status http em nossas responses.  
 ```python
 from rest_framework.views import APIView # receber a req 
 from rest_framework.response import Response # preparar resposta da req
