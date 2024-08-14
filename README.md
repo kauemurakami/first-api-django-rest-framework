@@ -225,7 +225,7 @@ class AvaliacaoSerializer(serializers.ModelSerializer):
     # indica o model do model serializer
     model = Avaliacao
     # quais campos quero apresentar/mostrar quando o model é solicitado
-    fields = {
+    fields = (
       'id',
       'curso',
       'nome',
@@ -233,20 +233,20 @@ class AvaliacaoSerializer(serializers.ModelSerializer):
       'comentario',
       'criacao',
       'ativo'
-    }
+    )
 
 
 class CursoSerializer(serializers.ModelSerializer):
   
   class Meta:
     model = Curso
-    fields = { 
+    fields = ( 
       'id',
       'titulo',
       'url',
       'criacao',
       'ativo'
-    }
+    )
 ``` 
 Com isso vamos poder enviar e receber respostas json baseado nos nossos models serializers.  
 
@@ -308,4 +308,64 @@ Agora para converter em json basta usar:
 >>> serializer.data
 ```
 Agora você terá seu objeto em formato json.  
+
+##### Criando APIViews
+Em `escola/cursos` no arquivo `views.py`, comece removendo todo o conteúdo, em seguida vamos definir nossas requisições, sendo elas `GET` e depois `POST`.  
+
+Definindo as funções `GET` e estrutura inicial:  
+```python
+from rest_framework.views import APIView # receber a requisição
+from rest_framework.response import Response # preparar resposta da requisição
+
+
+from cursos.models import Curso, Avaliacao
+from cursos.serializers import CursoSerializer, AvaliacaoSerializer
+
+
+class CursoAPIView(APIView):
+  """
+  Api de cursos
+  """
+  def get(self, request):
+    cursos = Curso.objects.all()
+    serializer = CursoSerializer(cursos, many = True) # many -> muitos
+    return Response(serializer.data)
+  
+
+class AvaliacaoAPIView(APIView):
+  """
+  Api de avaliacoes
+  """
+  def get(self, request):
+    avaliacoes = Avaliacao.objects.all()
+    serializer = AvaliacaoSerializer(avaliacoes, many = True)
+    return Response(serializer.data)
+```
+.<br/>
+Agora que definimos as `views`, precisamos criar `rotas` para acessá-las.  
+Em `cursos/` crie um novo arquivo chamado `urls.py`, deve estar no mesmo nível de `models.py` e `serializers.py`, e vamos inserir o seguinte conteúdo:  
+```python
+from django.urls import path
+
+from .views import CursoAPIView, AvaliacaoAPIView
+
+urlpatterns = [
+  path('cursos/', CursoAPIView.as_view(), name='cursos'),
+  path('avaliacoes/', AvaliacaoAPIView.as_view(), name='avaliacoes')
+]
+```
+Com isso criamos endpoints para nossas `APIViews`.  
+Agora vamos informar para o arquivo `urls.py` do projeto (`escola/escola/urls.py`) que temos novos endpoints/rotas.  
+Já no arquivo adicione as seguintes linhas:  
+```python
+urlpatterns = [
+    path('api/v1/', include('cursos.urls')), <<<
+    path('admin/', admin.site.urls),
+    path('auth/', include('rest_framework.urls'))
+]
+```
+Agora vá até seu navegador e acesse a url `http://localhost:5000/api/v1/cursos` a lista de cursos aparecerá para você em formato json, procure explorar os botões disponíveis e faça o mesmo para `/avaliacoes`.  
+Veremos em formato de api, e você também pode ver em formato json com o dropdown do botão GET.  
+
+
 

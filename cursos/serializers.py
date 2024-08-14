@@ -16,7 +16,7 @@ class AvaliacaoSerializer(serializers.ModelSerializer):
     # indica o model do model serializer
     model = Avaliacao
     # quais campos quero apresentar/mostrar quando o model é solicitado
-    fields = {
+    fields = (
       'id',
       'curso',
       'nome',
@@ -24,17 +24,17 @@ class AvaliacaoSerializer(serializers.ModelSerializer):
       'comentario',
       'criacao',
       'ativo'
-    }
+    )
 
 
 class CursoSerializer(serializers.ModelSerializer):
   
   class Meta:
     model = Curso
-    fields = { 
+    fields = (
       'id',
       'titulo',
       'url',
       'criacao',
       'ativo'
-    }
+    )
